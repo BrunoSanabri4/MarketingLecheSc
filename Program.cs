@@ -1,25 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Marketing_Sc.Data;
+
 var url = Environment.GetEnvironmentVariable("DATABASE");
 Console.WriteLine($"La cadena de conexión es esta: {url}");
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Registra el servicio ApiClient con HttpClient
+builder.Services.AddHttpClient<ApiClient>();
+
+// Configuración de DbContext
 builder.Services.AddDbContext<Marketing_ScContext>(options =>
     options.UseNpgsql(url));
 
-
-
-// Add services to the container.
+// Agregar servicios al contenedor
 builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Ejecutar migraciones al iniciar la aplicación
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<Marketing_ScContext>();
@@ -27,10 +31,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+// Consumir la API externa de tu compañero
 var apiClient = app.Services.GetRequiredService<ApiClient>();
 await apiClient.GetCampaniaData();  // Llamada a la API de tu compañero
 
