@@ -1,0 +1,6 @@
+@Marketing_Sc_HostAddress = http://localhost:5195
+
+GET {{Marketing_Sc_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
