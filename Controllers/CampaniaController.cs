@@ -15,10 +15,13 @@ namespace Marketing_Sc.Controllers
     public class CampaniaController : ControllerBase
     {
         private readonly Marketing_ScContext _context;
+        private readonly SucursalConsumo _sucursalConsumo;
 
-        public CampaniaController(Marketing_ScContext context)
+        // Inyectamos el servicio SucursalConsumo
+        public CampaniaController(Marketing_ScContext context, SucursalConsumo sucursalConsumo)
         {
             _context = context;
+            _sucursalConsumo = sucursalConsumo;
         }
 
         // GET: api/Campania
@@ -42,8 +45,22 @@ namespace Marketing_Sc.Controllers
             return campania;
         }
 
+        // Nuevo endpoint que consume un endpoint de compañero (GET /api/Dashboard/{codigoSucursal})
+        [HttpGet("dashboard/{codigoSucursal}")]
+        public async Task<ActionResult<string>> GetDashboardFromCompanion(string codigoSucursal)
+        {
+            // Llamamos al servicio que consume el endpoint externo
+            var data = await _sucursalConsumo.GetDashboardData(codigoSucursal);
+
+            if (data.StartsWith("Error"))
+            {
+                return BadRequest(data); // Si hay un error, devolvemos BadRequest
+            }
+
+            return Ok(data); // Devolvemos la respuesta que obtuvimos
+        }
+
         // PUT: api/Campania/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCampania(int id, Campania campania)
         {
@@ -74,7 +91,6 @@ namespace Marketing_Sc.Controllers
         }
 
         // POST: api/Campania
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Campania>> PostCampania(Campania campania)
         {
