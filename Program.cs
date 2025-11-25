@@ -31,5 +31,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+var apiClient = app.Services.GetRequiredService<ApiClient>();
+await apiClient.GetCampaniaData();  // Llamada a la API de tu compañero
 
 app.Run();
