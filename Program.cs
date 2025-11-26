@@ -7,6 +7,17 @@ Console.WriteLine($"La cadena de conexión es esta: {url}");
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configuración de CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")  // Permite solicitudes solo desde localhost:5173
+              .AllowAnyMethod()                      // Permite cualquier método (GET, POST, PUT, DELETE, etc.)
+              .AllowAnyHeader();                     // Permite cualquier encabezado
+    });
+});
+
 // Registra el servicio ApiClient con HttpClient
 builder.Services.AddHttpClient<ApiClient>();
 
@@ -22,6 +33,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Habilitar CORS
+app.UseCors("AllowLocalhost");
 
 // Ejecutar migraciones al iniciar la aplicación
 using (var scope = app.Services.CreateScope())
